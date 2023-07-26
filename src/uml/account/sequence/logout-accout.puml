@@ -1,0 +1,45 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor Client as client
+participant TokenIssuer_Server as server
+participant AccountController as co
+participant AccountService as sv
+database account_db as acc_db
+participant AccessToken as at
+database refresh_token_db as ref_db
+
+client -[#red]> server : POST /api/token/logout
+note left
+[LogoutRequestDto]
+* accessToken: string
+end note
+
+autonumber 2
+server --[#red]> co: logout(request)
+co --[#red]> sv: logout(request)
+
+sv --[#red]> at: getAccessTokenPayload(accessToken)
+at --[#blue]> sv: result
+
+sv --[#red]>at: getUserId(claims)
+at --[#blue]> sv: result
+
+sv --[#red]>ref_db : DELETE refresh_token
+alt Query is Fail
+    ref_db --[#blue]> client: Exception
+end
+
+autonumber 10
+co <[#blue]-- sv: Response<LogoutResponseDto>
+note left
+[LogoutResponseDto]
+* status: string
+end note
+server <[#blue]-- co: Response<LogoutResponseDto>
+
+client <[#blue]- server: Response
+
+@enduml

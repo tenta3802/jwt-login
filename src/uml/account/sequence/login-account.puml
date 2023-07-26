@@ -1,0 +1,75 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor Client as client
+participant TokenIssuer_Server as server
+participant AccountController as co
+participant AccountService as sv
+participant PasswordEncoder as pe
+database account_db as acc_db
+participant AccessToken as at
+participant RefreshToken as rt
+database refresh_token_db as ref_db
+
+client -[#red]> server : POST /api/auth/login
+note left
+[LoginRequestDto]
+* id: int
+* password: string
+end note
+
+autonumber 2
+server --[#red]> co: login(request)
+co --[#red]> sv: login(request)
+
+sv --[#red]>acc_db: SELECT account
+alt Account is not found
+    client <[#blue]-- acc_db: Exception
+end
+acc_db --[#blue]> sv: result
+
+sv --[#red]>pe: matches(request.password, account.password))
+pe --[#blue]> sv: result
+alt Password is not match
+    client <[#blue]-- sv: Exception
+end
+
+sv --[#red]>at: issueToken(accountInfo)
+alt AccessToken Generation Fails
+    client <[#blue]-- at: Exception
+end
+at --[#blue]> sv: result
+
+sv --[#red]>rt: issueToken(accountInfo)
+alt RefreshToken Generation Fails
+    client <[#blue]-- rt: Exception
+end
+
+rt --[#blue]> sv: result
+sv --[#red]>ref_db : SELECT refresh_token
+note left
+계정 id에 따른 refreshToken 조회 후
+이미 값이 존재할 경우 발급 받은 refreshToken 저장 및 만료 시간 설정
+값이 존재하지 않을 경우 새로운 refreshTokenEntity값 저장
+end note
+ref_db --[#blue]> sv: result
+sv --[#red]>ref_db : INSERT refresh_token
+alt Query is Fail
+    ref_db --[#blue]> client: Exception
+end
+
+autonumber 20
+
+co <[#blue]-- sv: Response<LoginResponseDto>
+note left
+[LoginResponseDto]
+* accessToken: string
+* refreshToken: string
+end note
+server <[#blue]-- co: Response<LoginRequestDto>
+
+client <[#blue]- server: Response
+
+@enduml

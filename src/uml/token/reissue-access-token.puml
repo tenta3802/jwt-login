@@ -1,0 +1,73 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor Client as client
+participant TokenIssuer_Server as server
+participant AccountController as co
+participant AccountService as sv
+database account_db as acc_db
+participant AccessToken as at
+participant RefreshToken as rt
+database refresh_token_db as ref_db
+
+client -[#red]> server : POST /api/token/reissue
+note left
+[TokenRequestDto]
+* accessToken: string
+* refreshToken: string
+end note
+
+autonumber 2
+server --[#red]> co: reissue(request)
+co --[#red]> sv: reissue(request)
+
+sv --[#red]>rt: getRefreshTokenPayload(refreshToken)
+rt --[#blue]> sv: result
+
+sv --[#red]>rt: getUserId(claims)
+rt --[#blue]> sv: result
+
+sv --[#red]>ref_db: SELECT refresh_token
+ref_db --[#blue]> sv: result
+note left
+요청 시 전달받은 RefreshToken 값과
+계정 id를 통해 조회된 RefreshToken
+일치 여부 확인
+end note
+alt RefreshToken is not matches
+    sv --[#blue]> client: Exception
+end
+
+sv --[#red]>at: getAccessTokenPayload(accessToken)
+at --[#blue]> sv: result
+
+alt The expiration time has not passed
+    sv --[#blue]> client: Exception
+end
+
+sv --[#red]>rt: verifyRefreshTokenPayload(refreshToken, accountInfo)
+rt --[#blue]> sv: result
+alt Token is not authorized
+    sv --[#blue]> client: Exception
+end
+
+sv --[#red]>at: issueToken(accountInfo)
+alt AccessToken generation fails
+    client <[#blue]-- at: Exception
+end
+at --[#blue]> sv: result
+
+autonumber 19
+
+co <[#blue]-- sv: Response<TokenResponseDto>
+note left
+[TokenResponseDto]
+* accessToken: string
+end note
+server <[#blue]-- co: Response<TokenResponseDto>
+
+client <[#blue]- server: Response
+
+@enduml
