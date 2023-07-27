@@ -12,8 +12,8 @@ public class LoginDto {
     @Builder
     @AllArgsConstructor
     public static class LoginRequest {
-        private String id;
-        private String password;
+        private String userId;
+        private String userPassword;
     }
 
     @Getter

@@ -28,12 +28,12 @@ public class TokenService {
         if(!preAccountId.equals(jwtService.extractUserName(refreshToken))) {
             throw new Exception("Not match accountId");
         }
+
         String newAccountToken = jwtService.generateAccessToken(account);
-        System.out.println(newAccountToken);
         ReIssueTokenResponse reIssueTokenResponse = ReIssueTokenResponse.builder()
                 .accessToken(newAccountToken)
                 .build();
-
+        System.out.println(newAccountToken);
         return reIssueTokenResponse;
     }
 }

@@ -26,23 +26,23 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public TokenResponse login(LoginDto.LoginRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getId(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(request.getUserId(), request.getUserPassword()));
 
-        var account = accountRepository.findAccountById(request.getId())
+        var account = accountRepository.findAccountById(request.getUserId())
             .orElseThrow(() -> new IllegalArgumentException("Invalid id or password"));
 
         String refreshToken = jwtService.generateRefreshToken(account);
         String accessToken = jwtService.generateAccessToken(account);
 
         return TokenResponse.builder()
-                .AccessToken(accessToken)
-                .RefreshToken(refreshToken)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
     @Override
     public TokenResponse signup(SignupRequest request) {
-        var account = Account.builder().id(request.getId()).password(passwordEncoder.encode(request.getPassword()))
+        var account = Account.builder().id(request.getUserId()).password(passwordEncoder.encode(request.getUserPassword()))
                 .role(Role.USER).build();
         accountRepository.save(account);
 
@@ -50,8 +50,8 @@ public class AccountServiceImpl implements AccountService {
         String accessToken = jwtService.generateRefreshToken(account);
 
         return TokenResponse.builder()
-                .AccessToken(accessToken)
-                .RefreshToken(refreshToken)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
