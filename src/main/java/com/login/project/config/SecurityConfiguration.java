@@ -2,6 +2,8 @@ package com.login.project.config;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+import com.login.project.filter.JwtAuthenticationFilter;
+import com.login.project.filter.JwtExceptionFilter;
 import com.login.project.util.CustomLogInSuccessHandler;
 import com.login.project.util.UserService;
 import org.springframework.context.annotation.Bean;
@@ -29,18 +31,20 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
-//    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserService userService;
     private final CustomLogInSuccessHandler customLogInSuccessHandler;
+    private final JwtExceptionFilter jwtExceptionFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable).cors(cors->cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(request -> request.requestMatchers("/api/auth/**", "/api/token/**", "/signin")
                         .permitAll().anyRequest().authenticated())
-                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS));
+                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
 //                .authenticationProvider(authenticationProvider())
-//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtExceptionFilter, jwtAuthenticationFilter.getClass());
         http
                 .formLogin(formLogin -> formLogin
                         .usernameParameter("id")

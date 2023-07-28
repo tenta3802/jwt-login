@@ -9,13 +9,11 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import com.login.project.auth.login.entity.Account;
+import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
@@ -73,8 +71,12 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(getSigningKey()).parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parser().setSigningKey(getSigningKey()).parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            throw new UnsupportedJwtException("EXPIRED_REFRESH_TOKEN");
+        }
     }
 
     private Key getSigningKey() {

@@ -4,7 +4,9 @@ import com.login.project.auth.jwt.dto.ReIssueTokenRequest;
 import com.login.project.auth.jwt.dto.ReIssueTokenResponse;
 import com.login.project.auth.login.AccountRepository;
 import com.login.project.auth.login.entity.Account;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,17 +19,16 @@ public class TokenService {
         String refreshToken = reIssueTokenRequest.getRefreshToken();
         String preAccessToken = reIssueTokenRequest.getAccessToken();
 
-        String preAccountId= jwtService.extractUserName(preAccessToken);
+        String preAccountId = jwtService.extractUserName(preAccessToken);
         Account account = accountRepository.findById(preAccountId);
 
         //refreshToken id와 로그인한 사용자 계정 id 비교 및 만료 시간 검사
-        if(!jwtService.isTokenValid(refreshToken, account)) {
-
+        if (!jwtService.isTokenValid(refreshToken, account)) {
             throw new Exception("Invalid refreshToken");
         }
 
         //refreshToken id와 accessToken id 값 비교
-        if(!preAccountId.equals(jwtService.extractUserName(refreshToken))) {
+        if (!preAccountId.equals(jwtService.extractUserName(refreshToken))) {
             throw new Exception("Not match accountId");
         }
 
@@ -35,7 +36,9 @@ public class TokenService {
         ReIssueTokenResponse reIssueTokenResponse = ReIssueTokenResponse.builder()
                 .accessToken(newAccountToken)
                 .build();
-        System.out.println(newAccountToken);
+
+        System.out.println("newAccountToken" + newAccountToken);
+
         return reIssueTokenResponse;
     }
 }
