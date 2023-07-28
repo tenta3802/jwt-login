@@ -46,8 +46,8 @@ public class AccountServiceImpl implements AccountService {
                 .role(Role.USER).build();
         accountRepository.save(account);
 
+        String accessToken = jwtService.generateAccessToken(account);
         String refreshToken = jwtService.generateRefreshToken(account);
-        String accessToken = jwtService.generateRefreshToken(account);
 
         return TokenResponse.builder()
                 .accessToken(accessToken)

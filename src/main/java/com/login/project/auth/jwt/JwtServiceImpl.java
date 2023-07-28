@@ -21,7 +21,7 @@ public class JwtServiceImpl implements JwtService {
     private String jwtSigningKey;
 
     @Override
-    public String extractUserName(String token) throws TokenIssuerServiceException {
+    public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -36,12 +36,12 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public boolean isTokenValid(String token, UserDetails userDetails) throws TokenIssuerServiceException {
+    public boolean isTokenValid(String token, UserDetails userDetails) {
         final String userName = extractUserName(token);
         return (userName.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) throws TokenIssuerServiceException {
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {
         final Claims claims = extractAllClaims(token);
         return claimsResolvers.apply(claims);
     }
@@ -56,26 +56,21 @@ public class JwtServiceImpl implements JwtService {
     private String generateRefreshToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + Duration.ofMinutes(1).toMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + Duration.ofMinutes(2).toMillis()))
                 .signWith(SignatureAlgorithm.HS256, getSigningKey()).compact();
     }
 
-    private boolean isTokenExpired(String token) throws TokenIssuerServiceException {
+    private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) throws TokenIssuerServiceException {
+    private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private Claims extractAllClaims(String token) throws TokenIssuerServiceException {
-        try {
-            return Jwts.parser().setSigningKey(getSigningKey()).parseClaimsJws(token)
-                    .getBody();
-        } catch (ExpiredJwtException e) {
-            throw new TokenIssuerServiceException(ResultCode.REFRESH_TOKEN_EXPIRED);
-        }
-
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser().setSigningKey(getSigningKey()).parseClaimsJws(token)
+                .getBody();
     }
 
     private Key getSigningKey() {

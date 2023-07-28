@@ -1,4 +1,4 @@
-package com.login.project.exception;
+package com.login.project.exception.dto;
 
 import lombok.AllArgsConstructor;
 

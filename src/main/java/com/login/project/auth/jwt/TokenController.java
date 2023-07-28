@@ -16,9 +16,6 @@ public class TokenController {
     @PostMapping("/reissue")
     public ResponseEntity<ReIssueTokenResponse> reissue(@RequestBody ReIssueTokenRequest reIssueTokenRequest) throws Exception {
         reIssueTokenRequest.getAccessToken();
-        if (reIssueTokenRequest.getAccessToken() == "undefined") {
-            throw new JwtExpiredException("리프레시 토큰 만료!");
-        }
         return ResponseEntity.ok(tokenService.reissue(reIssueTokenRequest));
     }
 }

@@ -1,6 +1,6 @@
 package com.login.project.exception;
 
-import com.login.project.auth.jwt.dto.TokenResponse;
+import com.login.project.exception.dto.ApiResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;

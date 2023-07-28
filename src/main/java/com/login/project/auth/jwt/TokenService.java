@@ -22,7 +22,7 @@ public class TokenService {
 
         //refreshToken id와 로그인한 사용자 계정 id 비교 및 만료 시간 검사
         if (!jwtService.isTokenValid(refreshToken, account)) {
-            throw new JwtExpiredException("refresh token expired");
+            throw new Exception("refresh token expired");
         }
 
         //refreshToken id와 accessToken id 값 비교
