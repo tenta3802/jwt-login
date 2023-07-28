@@ -2,7 +2,6 @@ package com.login.project.auth.jwt;
 
 import com.login.project.auth.jwt.dto.ReIssueTokenRequest;
 import com.login.project.auth.jwt.dto.ReIssueTokenResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +15,10 @@ public class TokenController {
 
     @PostMapping("/reissue")
     public ResponseEntity<ReIssueTokenResponse> reissue(@RequestBody ReIssueTokenRequest reIssueTokenRequest) throws Exception {
+        reIssueTokenRequest.getAccessToken();
+        if (reIssueTokenRequest.getAccessToken() == "undefined") {
+            throw new JwtExpiredException("리프레시 토큰 만료!");
+        }
         return ResponseEntity.ok(tokenService.reissue(reIssueTokenRequest));
     }
 }

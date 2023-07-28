@@ -4,9 +4,7 @@ import com.login.project.auth.jwt.dto.ReIssueTokenRequest;
 import com.login.project.auth.jwt.dto.ReIssueTokenResponse;
 import com.login.project.auth.login.AccountRepository;
 import com.login.project.auth.login.entity.Account;
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,7 +22,7 @@ public class TokenService {
 
         //refreshToken id와 로그인한 사용자 계정 id 비교 및 만료 시간 검사
         if (!jwtService.isTokenValid(refreshToken, account)) {
-            throw new Exception("Invalid refreshToken");
+            throw new JwtExpiredException("refresh token expired");
         }
 
         //refreshToken id와 accessToken id 값 비교
@@ -37,8 +35,7 @@ public class TokenService {
                 .accessToken(newAccountToken)
                 .build();
 
-        System.out.println("newAccountToken" + newAccountToken);
-
+//        System.out.println("AccountToken = " + newAccountToken);
         return reIssueTokenResponse;
     }
 }

@@ -5,10 +5,8 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
-import com.login.project.auth.login.entity.Account;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,7 +21,7 @@ public class JwtServiceImpl implements JwtService {
     private String jwtSigningKey;
 
     @Override
-    public String extractUserName(String token) {
+    public String extractUserName(String token) throws TokenIssuerServiceException {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -38,12 +36,12 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(String token, UserDetails userDetails) throws TokenIssuerServiceException {
         final String userName = extractUserName(token);
         return (userName.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) throws TokenIssuerServiceException {
         final Claims claims = extractAllClaims(token);
         return claimsResolvers.apply(claims);
     }
@@ -58,25 +56,26 @@ public class JwtServiceImpl implements JwtService {
     private String generateRefreshToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + Duration.ofMinutes(2).toMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + Duration.ofMinutes(1).toMillis()))
                 .signWith(SignatureAlgorithm.HS256, getSigningKey()).compact();
     }
 
-    private boolean isTokenExpired(String token) {
+    private boolean isTokenExpired(String token) throws TokenIssuerServiceException {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+    private Date extractExpiration(String token) throws TokenIssuerServiceException {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(String token) throws TokenIssuerServiceException {
         try {
             return Jwts.parser().setSigningKey(getSigningKey()).parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            throw new UnsupportedJwtException("EXPIRED_REFRESH_TOKEN");
+            throw new TokenIssuerServiceException(ResultCode.REFRESH_TOKEN_EXPIRED);
         }
+
     }
 
     private Key getSigningKey() {
