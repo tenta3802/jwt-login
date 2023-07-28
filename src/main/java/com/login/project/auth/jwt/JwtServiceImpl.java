@@ -1,6 +1,7 @@
 package com.login.project.auth.jwt;
 
 import java.security.Key;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,7 +60,7 @@ public class JwtServiceImpl implements JwtService {
     private String generateRefreshToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 5))
+                .setExpiration(new Date(System.currentTimeMillis() + Duration.ofMinutes(2).toMillis()))
                 .signWith(SignatureAlgorithm.HS256, getSigningKey()).compact();
     }
 
