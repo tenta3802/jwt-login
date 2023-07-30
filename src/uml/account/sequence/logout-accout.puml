@@ -14,17 +14,14 @@ database refresh_token_db as ref_db
 client -[#red]> server : POST /api/token/logout
 note left
 [LogoutRequestDto]
-* accessToken: string
+* accessToken: String
 end note
 
 autonumber 2
 server --[#red]> co: logout(request)
 co --[#red]> sv: logout(request)
 
-sv --[#red]> at: getAccessTokenPayload(accessToken)
-at --[#blue]> sv: result
-
-sv --[#red]>at: getUserId(claims)
+sv --[#red]> at: extractUserName(accessToken)
 at --[#blue]> sv: result
 
 sv --[#red]>ref_db : DELETE refresh_token
@@ -32,11 +29,11 @@ alt Query is Fail
     ref_db --[#blue]> client: Exception
 end
 
-autonumber 10
+autonumber 8
 co <[#blue]-- sv: Response<LogoutResponseDto>
 note left
 [LogoutResponseDto]
-* status: string
+* status: String
 end note
 server <[#blue]-- co: Response<LogoutResponseDto>
 

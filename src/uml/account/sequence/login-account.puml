@@ -9,15 +9,14 @@ participant AccountController as co
 participant AccountService as sv
 participant PasswordEncoder as pe
 database account_db as acc_db
-participant AccessToken as at
-participant RefreshToken as rt
+participant jwtService as js
 database refresh_token_db as ref_db
 
 client -[#red]> server : POST /api/auth/login
 note left
 [LoginRequestDto]
-* id: int
-* password: string
+* id: String
+* password: String
 end note
 
 autonumber 2
@@ -36,18 +35,18 @@ alt Password is not match
     client <[#blue]-- sv: Exception
 end
 
-sv --[#red]>at: issueToken(accountInfo)
+sv --[#red]>js: generateToken(account)
 alt AccessToken Generation Fails
-    client <[#blue]-- at: Exception
+    client <[#blue]-- js: Exception
 end
-at --[#blue]> sv: result
+js --[#blue]> sv: result
 
-sv --[#red]>rt: issueToken(accountInfo)
+sv --[#red]>js: generateToken(account)
 alt RefreshToken Generation Fails
-    client <[#blue]-- rt: Exception
+    client <[#blue]-- js: Exception
 end
 
-rt --[#blue]> sv: result
+js --[#blue]> sv: result
 sv --[#red]>ref_db : SELECT refresh_token
 note left
 계정 id에 따른 refreshToken 조회 후
@@ -65,8 +64,8 @@ autonumber 20
 co <[#blue]-- sv: Response<LoginResponseDto>
 note left
 [LoginResponseDto]
-* accessToken: string
-* refreshToken: string
+* accessToken: String
+* refreshToken: String
 end note
 server <[#blue]-- co: Response<LoginRequestDto>
 

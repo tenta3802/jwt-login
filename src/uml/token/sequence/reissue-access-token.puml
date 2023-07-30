@@ -1,0 +1,70 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor Client as client
+participant TokenIssuer_Server as server
+participant AccountController as co
+participant AccountService as sv
+database account_db as acc_db
+participant JwtService as js
+database refresh_token_db as ref_db
+
+client -[#red]> server : POST /api/token/reissue
+note left
+[TokenRequestDto]
+* accessToken: String
+* refreshToken: String
+end note
+
+autonumber 2
+server --[#red]> co: reissue(request)
+co --[#red]> sv: reissue(request)
+
+sv --[#red]>js: extractUserName(accessToken)
+js --[#blue]> sv: result
+
+sv --[#red]>acc_db: SELECT account
+acc_db --[#blue]> sv: result
+
+sv --[#red]>ref_db: SELECT refresh_token
+ref_db --[#blue]> sv: result
+note left
+요청 시 전달받은 RefreshToken 값과
+계정 id를 통해 조회된 RefreshToken
+일치 여부 확인
+end note
+alt RefreshToken is not matches
+    sv --[#blue]> client: Exception
+end
+
+sv --[#red]>js: isTokenValid(refreshToken, account)
+js --[#blue]> sv: result
+note left
+refreshToken 값 내 id와
+로그인 한 사용자 id 비교 및
+만료 시간 검사
+end note
+alt Refresh token expired
+    sv --[#blue]> client: Exception
+end
+
+sv --[#red]>js: generateToken(account)
+alt AccessToken generation fails
+    client <[#blue]-- js: Exception
+end
+js --[#blue]> sv: result
+
+autonumber 17
+
+co <[#blue]-- sv: Response<TokenResponseDto>
+note left
+[TokenResponseDto]
+* accessToken: String
+end note
+server <[#blue]-- co: Response<TokenResponseDto>
+
+client <[#blue]- server: Response
+
+@enduml
