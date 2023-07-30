@@ -2,16 +2,14 @@ package com.login.project.auth.jwt.entity;
 
 import com.login.project.auth.login.entity.Account;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "refresh_token")
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,7 +29,4 @@ public class RefreshToken {
 
     @Column(nullable = false, name = "expire_at")
     private LocalDateTime expireAt;
-
-    @Column(name = "create_at")
-    private LocalDateTime createAt;
 }

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ExceptionResponseHandler {
-    // 아래 내용 모두 추가
     @ExceptionHandler(SignatureException.class)
     public ResponseEntity<ApiResponse> handleSignatureException() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error("토큰이 유효하지 않습니다."));

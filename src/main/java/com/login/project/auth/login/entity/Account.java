@@ -1,6 +1,5 @@
 package com.login.project.auth.login.entity;
 
-import com.login.project.auth.login.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,12 +31,9 @@ public class Account implements UserDetails {
     @Column(nullable = false, name = "password")
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(getRole().name()));
+        return List.of(new SimpleGrantedAuthority("USER"));
     }
 
     @Override

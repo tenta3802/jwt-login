@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Integer> {
     List<RefreshToken> findByAccount(Account account);
+    RefreshToken findRefreshTokenByAccount(Account account);
     void deleteAllByAccount(Account account);
 }
