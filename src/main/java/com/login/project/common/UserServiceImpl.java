@@ -1,4 +1,4 @@
-package com.login.project.util;
+package com.login.project.common;
 
 import com.login.project.auth.login.AccountRepository;
 import lombok.RequiredArgsConstructor;

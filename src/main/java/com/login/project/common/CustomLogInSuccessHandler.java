@@ -1,4 +1,4 @@
-package com.login.project.util;
+package com.login.project.common;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

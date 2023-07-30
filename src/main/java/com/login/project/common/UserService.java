@@ -1,4 +1,4 @@
-package com.login.project.util;
+package com.login.project.common;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 

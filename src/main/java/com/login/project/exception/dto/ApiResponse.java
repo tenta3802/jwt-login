@@ -8,8 +8,6 @@ public class ApiResponse {
     private String message;
     private Object data;
 
-    // Getters and Setters (you can use Lombok or generate them manually)
-
     public static ApiResponse success(String message, Object data) {
         return new ApiResponse(true, message, data);
     }

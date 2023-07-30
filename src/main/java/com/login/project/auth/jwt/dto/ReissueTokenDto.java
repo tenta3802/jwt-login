@@ -11,16 +11,16 @@ public class ReissueTokenDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public class ReIssueTokenRequest {
-        private String RefreshToken;
-        private String AccessToken;
+    public static class ReIssueTokenRequest {
+        private String refreshToken;
+        private String accessToken;
     }
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public class ReIssueTokenResponse {
+    public static class ReIssueTokenResponse {
         private String accessToken;
     }
 }

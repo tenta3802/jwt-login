@@ -13,7 +13,7 @@ public class LogoutDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class LogoutRequest {
-        private String AccessToken;
+        private String accessToken;
     }
 
     @Getter
